@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Success</title>
+  <style>
+    body {
+      font-family: system-ui, Arial, sans-serif;
+      background: #0f172a;
+      color: #e5e7eb;
+      margin: 0;
+      padding: 20px;
+      text-align: center;
+    }
+    .container {
+      max-width: 600px;
+      margin: auto;
+      padding-top: 40px;
+    }
+    .card {
+      background: #022c22;
+      border: 1px solid #22c55e;
+      border-radius: 10px;
+      padding: 20px;
+      margin-bottom: 20px;
+    }
+    .button {
+      display: block;
+      background: #22c55e;
+      color: #022c22;
+      padding: 14px;
+      border-radius: 8px;
+      text-decoration: none;
+      font-weight: 600;
+      margin-top: 14px;
+    }
+    img {
+      margin-top: 18px;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="container">
+    <div class="card">
+      <h2>✅ Machine Logged Successfully</h2>
+      <p><strong>Machine ID:</strong> <span id="machineId"></span></p>
+      <p>Attach the printed label to the machine.</p>
+      <img id="qr" alt="QR Code" />
+    </div>
+
+    <a class="button" id="newEntry" href="#">Submit Another Machine</a>
+    <a class="button" id="history" href="#">View Machine History</a>
+  </div>
+
+  <script>
+    const params = new URLSearchParams(window.location.search);
+    const id = params.get('machineId');
+
+    document.getElementById('machineId').textContent = id;
+
+    // Build history URL (same backend, but with ?id=xxx)
+    const historyUrl = "https://script.google.com/macros/s/AKfycbylx0J97zfqQV3atbvXlPPIyoRn4zVZ7qYoHTLgWPK8z2BbIAj-3WBKQObX1DvlSQgS/exec" + encodeURIComponent(id);
+
+    document.getElementById('history').href = historyUrl;
+    document.getElementById('newEntry').href = "index.html";
+
+    // QR code
+    document.getElementById('qr').src =
+      "https://chart.googleapis.com/chart?cht=qr&chs=200x200&chl=" +
+      encodeURIComponent(historyUrl);
+  </script>
+
+</body>
+</html>
