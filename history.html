@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>Machine History</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <style>
+    body {
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Arial, sans-serif;
+      background: #0f172a;
+      color: #e5e7eb;
+      margin: 0;
+    }
+    .container {
+      max-width: 800px;
+      margin: 0 auto;
+      padding: 16px;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.85rem;
+    }
+    th, td {
+      border: 1px solid #4b5563;
+      padding: 4px 6px;
+    }
+    th {
+      background: #111827;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>Machine History</h1>
+    <p id="machineIdLine"></p>
+    <div id="status"></div>
+    <table id="historyTable" style="display:none;">
+      <thead>
+        <tr>
+          <th>Timestamp</th>
+          <th>Customer</th>
+          <th>Site</th>
+          <th>Manufacturer</th>
+          <th>Type</th>
+          <th>Model</th>
+          <th>Status</th>
+          <th>Reason</th>
+          <th>Technician</th>
+        </tr>
+      </thead>
+      <tbody id="historyBody"></tbody>
+    </table>
+  </div>
+  <script>
+    const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwaQdPaex00q4KjLmz24G_b0hTKZM5GIa11YNl1Dd-fPb6Q9u3ZkJXdsztzql-Keo7g/exec";
+
+    function getQueryParam(name) {
+      const params = new URLSearchParams(window.location.search);
+      return params.get(name);
+    }
+
+    async function loadHistory() {
+      const id = getQueryParam('id');
+      const machineIdLine = document.getElementById('machineIdLine');
+      const statusDiv = document.getElementById('status');
+      const table = document.getElementById('historyTable');
+      const tbody = document.getElementById('historyBody');
+
+      if (!id) {
+        statusDiv.textContent = 'No machine ID provided.';
+        return;
+      }
+
+      machineIdLine.textContent = 'Machine ID: ' + id;
+
+      try {
+        const resp = await fetch(SCRIPT_URL + '?id=' + encodeURIComponent(id));
+        const data = await resp.json();
+
+        if (!data.ok) {
+          statusDiv.textContent = 'Error loading history: ' + (data.error || 'Unknown error');
+          return;
+        }
+
+        const records = data.records || [];
+        if (!records.length) {
+          statusDiv.textContent = 'No records found for this machine yet.';
+          return;
+        }
+
+        statusDiv.textContent = '';
+        table.style.display = 'table';
+
+        records.forEach(r => {
+          const tr = document.createElement('tr');
+          function td(text) {
+            const cell = document.createElement('td');
+            cell.textContent = text ?? '';
+            return cell;
+          }
+
+          tr.appendChild(td(r['Timestamp']));
+          tr.appendChild(td(r['Customer Name']));
+          tr.appendChild(td(r['Site Name']));
+          tr.appendChild(td(r['Machine Manufacturer']));
+          tr.appendChild(td(r['Machine Type']));
+          tr.appendChild(td(r['Machine Model']));
+          tr.appendChild(td(r['Machine Status']));
+          tr.appendChild(td(r['Reason For Return']));
+          tr.appendChild(td(r['Technician Name']));
+          tbody.appendChild(tr);
+        });
+      } catch (err) {
+        console.error(err);
+        statusDiv.textContent = 'Network or server error loading history.';
+      }
+    }
+
+    loadHistory();
+  </script>
+</body>
+</html>
