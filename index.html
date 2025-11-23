@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Warehouse Machine Intake</title>
+  <style>
+    body {
+      font-family: system-ui, Arial, sans-serif;
+      background: #0f172a;
+      color: #e5e7eb;
+      margin: 0;
+      padding: 20px;
+    }
+    .container {
+      max-width: 600px;
+      margin: auto;
+    }
+    h1 {
+      text-align: center;
+      margin-bottom: 20px;
+    }
+    .field {
+      margin-bottom: 12px;
+      display: flex;
+      flex-direction: column;
+    }
+    input, select, button {
+      padding: 10px;
+      border-radius: 6px;
+      border: 1px solid #334155;
+      background: #020617;
+      color: #e5e7eb;
+    }
+    button {
+      margin-top: 12px;
+      background: #22c55e;
+      border: none;
+      cursor: pointer;
+      font-weight: 600;
+    }
+    .success {
+      background: #022c22;
+      padding: 16px;
+      border: 1px solid #22c55e;
+      border-radius: 8px;
+      text-align: center;
+    }
+    img {
+      margin-top: 12px;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="container">
+    <h1>Warehouse Machine Intake</h1>
+
+    <form method="post" action="YOUR_EXEC_URL_HERE" target="_top">
+      <div class="field">
+        <label>Customer Name</label>
+        <input type="text" name="customerName" required>
+      </div>
+
+      <div class="field">
+        <label>Site Name</label>
+        <input type="text" name="siteName" required>
+      </div>
+
+      <div class="field">
+        <label>Machine Manufacturer</label>
+        <input type="text" name="manufacturer" required>
+      </div>
+
+      <div class="field">
+        <label>Machine Type</label>
+        <input type="text" name="machineType" required>
+      </div>
+
+      <div class="field">
+        <label>Machine Model</label>
+        <input type="text" name="model" required>
+      </div>
+
+      <div class="field">
+        <label>Serial Number</label>
+        <input type="text" name="serial">
+      </div>
+
+      <div class="field">
+        <label>Machine Status</label>
+        <select name="status" required>
+          <option value="">Select…</option>
+          <option>Working</option>
+          <option>Faulty</option>
+          <option>Unknown</option>
+        </select>
+      </div>
+
+      <div class="field">
+        <label>Reason for Return</label>
+        <select name="reason" required>
+          <option value="">Select…</option>
+          <option>Loan unit returned</option>
+          <option>Customer upgraded</option>
+          <option>Requires workshop repair</option>
+          <option>Approved for disposal</option>
+          <option>Other</option>
+        </select>
+      </div>
+
+      <div class="field">
+        <label>Technician Name</label>
+        <input type="text" name="techName" required>
+      </div>
+
+      <button type="submit">Submit</button>
+    </form>
+
+  </div>
+
+</body>
+</html>
