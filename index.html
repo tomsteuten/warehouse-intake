@@ -1,56 +1,76 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta charset="UTF-8">
   <title>Warehouse Machine Intake</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
   <style>
     body {
-      font-family: system-ui, Arial, sans-serif;
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Arial, sans-serif;
       background: #0f172a;
       color: #e5e7eb;
       margin: 0;
-      padding: 20px;
     }
     .container {
       max-width: 600px;
-      margin: auto;
+      margin: 0 auto;
+      padding: 16px;
     }
     h1 {
-      text-align: center;
-      margin-bottom: 20px;
+      font-size: 1.6rem;
+      margin-bottom: 12px;
     }
     .field {
       margin-bottom: 12px;
       display: flex;
       flex-direction: column;
     }
-    input, select, button {
-      padding: 10px;
-      border-radius: 6px;
-      border: 1px solid #334155;
+    label {
+      font-size: 0.9rem;
+      margin-bottom: 4px;
+    }
+    input[type="text"], select {
+      padding: 8px;
+      border-radius: 4px;
+      border: 1px solid #4b5563;
       background: #020617;
       color: #e5e7eb;
     }
-    button {
-      margin-top: 12px;
-      background: #22c55e;
-      border: none;
-      cursor: pointer;
-      font-weight: 600;
+    .checkbox label {
+      flex-direction: row;
+      align-items: center;
+      gap: 6px;
     }
-    img {
-      margin-top: 12px;
+    button {
+      width: 100%;
+      padding: 10px;
+      border-radius: 6px;
+      border: none;
+      font-size: 1rem;
+      font-weight: 600;
+      background: #22c55e;
+      color: #022c22;
+      cursor: pointer;
+    }
+    button:hover { opacity: 0.9; }
+    .hidden { display: none; }
+    .success-card {
+      border-radius: 8px;
+      padding: 12px;
+      background: #022c22;
+      border: 1px solid #22c55e;
+      margin-top: 16px;
+    }
+    img.qr {
+      margin-top: 8px;
     }
   </style>
 </head>
 <body>
-
   <div class="container">
     <h1>Warehouse Machine Intake</h1>
 
-<form method="post" action="https://script.google.com/macros/s/AKfycbwaQdPaex00q4KjLmz24G_b0hTKZM5GIa11YNl1Dd-fPb6Q9u3ZkJXdsztzql-Keo7g/exec" target="_top">
-
+    <form id="intakeForm">
       <div class="field">
         <label>Customer Name</label>
         <input type="text" name="customerName" required>
@@ -79,6 +99,13 @@
       <div class="field">
         <label>Serial Number</label>
         <input type="text" name="serial">
+      </div>
+
+      <div class="field checkbox">
+        <label>
+          <input type="checkbox" name="serialMissing">
+          Serial number not available
+        </label>
       </div>
 
       <div class="field">
@@ -111,7 +138,75 @@
       <button type="submit">Submit</button>
     </form>
 
+    <div id="success" class="success-card hidden">
+      <h2>Submitted</h2>
+      <p>Machine ID: <span id="machineId"></span></p>
+      <p><a id="historyLink" href="#" target="_blank">Open machine history</a></p>
+      <p>QR code (this is what will go on the label):</p>
+      <img id="qrImg" class="qr" src="" alt="QR Code">
+      <p style="margin-top:8px;">
+        <a href="" id="newEntryLink">Submit another machine</a>
+      </p>
+    </div>
   </div>
 
+  <script>
+    const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwaQdPaex00q4KjLmz24G_b0hTKZM5GIa11YNl1Dd-fPb6Q9u3ZkJXdsztzql-Keo7g/exec";
+
+    const form = document.getElementById('intakeForm');
+    const successCard = document.getElementById('success');
+    const machineIdSpan = document.getElementById('machineId');
+    const historyLink = document.getElementById('historyLink');
+    const qrImg = document.getElementById('qrImg');
+    const newEntryLink = document.getElementById('newEntryLink');
+
+    newEntryLink.href = window.location.href;
+
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault();
+
+      const formData = new FormData(form);
+      // Convert checkbox to explicit boolean-ish
+      if (!formData.has('serialMissing')) {
+        formData.set('serialMissing', 'false');
+      }
+
+      const body = new URLSearchParams();
+      for (const [key, value] of formData.entries()) {
+        body.append(key, value);
+      }
+
+      try {
+        const resp = await fetch(SCRIPT_URL, {
+          method: 'POST',
+          body
+        });
+
+        const data = await resp.json();
+
+        if (!data.ok) {
+          alert('Error submitting form: ' + (data.error || 'Unknown error'));
+          return;
+        }
+
+        const machineId = data.machineId;
+        const historyUrl = data.historyUrl;
+
+        machineIdSpan.textContent = machineId;
+        historyLink.href = historyUrl;
+
+        // Use a public QR API to generate the QR locally for the page
+        const qrApi = 'https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=' +
+          encodeURIComponent(historyUrl);
+        qrImg.src = qrApi;
+
+        form.classList.add('hidden');
+        successCard.classList.remove('hidden');
+      } catch (err) {
+        console.error(err);
+        alert('Network or server error submitting form.');
+      }
+    });
+  </script>
 </body>
 </html>
